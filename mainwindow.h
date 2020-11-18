@@ -18,7 +18,8 @@ public:
 
 
 private slots:
-    void on_radioButton_clicked(bool checked);
+    void sensorClicked(bool checked);
+
 
 
 private:

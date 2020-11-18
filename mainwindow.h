@@ -20,11 +20,31 @@ public:
 private slots:
     void sensorClicked(bool checked);
 
+    void on_btnClr_clicked();
 
+    void on_inputDis_valueChanged(int arg1);
+
+    void on_inputSpd_valueChanged(int arg1);
+
+
+    void on_startRow_currentIndexChanged(int index);
+
+    void on_startCol_currentIndexChanged(int index);
+
+    void on_endRow_currentIndexChanged(int index);
+
+    void on_endCol_currentIndexChanged(int index);
 
 private:
     Ui::MainWindow *ui;
     bool** graph;
+    int numSensor;
+    int dis;
+    int speed;
+    int strRol;
+    int strCol;
+    int endRow;
+    int endCol;
 
 };
 #endif // MAINWINDOW_H

@@ -2064,7 +2064,7 @@
      </property>
     </widget>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="btnClr">
     <property name="geometry">
      <rect>
       <x>500</x>
@@ -2077,7 +2077,7 @@
      <string>清除</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton_2">
+   <widget class="QPushButton" name="btnStr">
     <property name="geometry">
      <rect>
       <x>610</x>
@@ -2181,7 +2181,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QComboBox" name="startRol">
+    <widget class="QComboBox" name="startRow">
      <property name="geometry">
       <rect>
        <x>50</x>
@@ -2234,7 +2234,7 @@
       </property>
      </item>
     </widget>
-    <widget class="QComboBox" name="endtRol">
+    <widget class="QComboBox" name="endRow">
      <property name="geometry">
       <rect>
        <x>50</x>
@@ -2418,8 +2418,8 @@
    </widget>
    <zorder>attribute</zorder>
    <zorder>sensorNet</zorder>
-   <zorder>pushButton</zorder>
-   <zorder>pushButton_2</zorder>
+   <zorder>btnClr</zorder>
+   <zorder>btnStr</zorder>
    <zorder>oped</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">

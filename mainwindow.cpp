@@ -1,6 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-
+#include <basetsd.h>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -55,6 +55,7 @@ void MainWindow::on_btnClr_clicked()
             graph[i][j]=false;
         }
     }
+    numSensor=0;
     QObject* object;
     QString name;
     foreach(object,ui->sensorNet->children()){
@@ -93,4 +94,40 @@ void MainWindow::on_endRow_currentIndexChanged(int index)
 void MainWindow::on_endCol_currentIndexChanged(int index)
 {
     endCol = index;
+}
+
+void MainWindow::calculate()
+{
+    int N=numSensor;
+    int M=1<<(N-1);
+    int D[N][N];
+    for(int i=0;i<N;i++){
+        for(int j=0;j<N;j++){
+            D[i][j]=distance()
+        }
+    }
+    int dp[N][M];
+    for(int i=0;i<N;i++){
+        for(int j=0;j<M;j++){
+            dp[i][j]=INT32_MAX;
+        }
+    }
+    for(int i=0;i<N;i++){
+        dp[i][0]=D[i][0];
+    }
+    for(int i=1;i<M;i++){
+        for(int j=1;j<N;j++){
+            if((1<<(j-1))&i)
+                continue;
+            for(int k=1;k<N;k++){
+
+                if(!((1<<(k-1))&i))
+                    continue;
+                int  tmp =D[j][k]+dp[k][(~(1<<(k-1)))&i];
+                if(tmp<dp[j][i]){
+                    dp[j][i]=tmp;
+                }
+            }
+        }
+    }
 }

@@ -45,6 +45,7 @@ private:
     int strCol;
     int endRow;
     int endCol;
-
+    void calculate();
+    void distance(int a_x,int a_y,int b_x,int b_y);
 };
 #endif // MAINWINDOW_H

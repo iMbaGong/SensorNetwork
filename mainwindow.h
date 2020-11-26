@@ -47,8 +47,10 @@ private:
     int strCol;
     int endRow;
     int endCol;
+
     void calculate();
     int distance(int a_x,int a_y,int b_x,int b_y);
     void setStrEnd();
+    void mySwitch(int& res,int tar,int** nodes);
 };
 #endif // MAINWINDOW_H

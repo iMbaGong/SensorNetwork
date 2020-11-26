@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
     numSensor = strRow = strCol = endRow = endCol =0;
     dis = speed = 100;
+
     QObject* object;
     QString name;
     foreach(object,ui->sensorNet->children()){
@@ -113,9 +114,17 @@ void MainWindow::calculate()
             return;
     }
 
-    int N=numSensor;
-    int M=1<<(N-1);
-    int nodes[N][2];
+    int N=numSensor,M;
+    if(strRow==endRow&&strCol==endCol){
+        M=1<<(N-1);
+    }
+    else{
+        M=1<<(N-2);
+    }
+    int** nodes=new int*[N];
+    for(int i=0;i<N;i++){
+        nodes[i] = new int[2];
+    }
     int num=0;
     int strIndex,endIndex;
     //将点放进数组以便建立图
@@ -132,17 +141,33 @@ void MainWindow::calculate()
             }
         }
     }
-    {//将起始点移到第一个
-        int sw[2];
-        sw[0]=nodes[0][0];sw[1]=nodes[0][1];
-        nodes[0][0]=nodes[strIndex][0];nodes[0][1]=nodes[strIndex][1];
-        nodes[strIndex][0]=sw[0];nodes[strIndex][1]=sw[1];
+
+    if(endIndex==strIndex){
+        //将结束点移到开始
+        mySwitch(endIndex,0,nodes);
+        strIndex=0;
     }
+    else{
+        //将结束点移到最后
+        mySwitch(endIndex,N-1,nodes);
+        //将起始点移到第一个
+        mySwitch(strIndex,0,nodes);
+    }
+
+
+
     //计算边的权值
     int D[N][N];
     for(int i=0;i<N;i++){
         for(int j=0;j<N;j++){
             D[i][j]=distance(nodes[i][0],nodes[i][1],nodes[j][0],nodes[j][1]);
+        }
+    }
+    //保存路径
+    std::vector<int>* path[N][M];
+    for(int i=0;i<N;i++){
+        for(int j=0;j<M;j++){
+            path[i][j]=new std::vector<int>();
         }
     }
     //初始化动态规划数组
@@ -153,23 +178,37 @@ void MainWindow::calculate()
         }
     }
     for(int i=0;i<N;i++){
-        dp[i][0]=D[i][0];
+        dp[i][0]=D[i][endIndex];
+        path[i][0]->push_back(i);
     }
+
+
+
+    //开始计算
     for(int i=1;i<M;i++){
-        for(int j=1;j<N;j++){
-            if((1<<(j-1))&i)
+        for(int j=0;j<N;j++){
+            if(j!=0&&((1<<(j-1))&i))
                 continue;
             for(int k=1;k<N;k++){
-
                 if(!((1<<(k-1))&i))
                     continue;
                 int  tmp =D[j][k]+dp[k][(~(1<<(k-1)))&i];
                 if(tmp<dp[j][i]){
                     dp[j][i]=tmp;
+                    delete path[j][i];
+                    path[j][i]=new std::vector<int>(*path[k][(~(1<<(k-1)))&i]);
+                    path[j][i]->push_back(j);
                 }
             }
         }
     }
+    while(path[0][M-1]->size()){
+        qDebug("(%d,%d)->",nodes[path[0][M-1]->back()][0],nodes[path[0][M-1]->back()][1]);
+        path[0][M-1]->pop_back();
+    }
+    qDebug("(%d,%d)",nodes[endIndex][0],nodes[endIndex][1]);
+
+    delete[] nodes;
 }
 
 int MainWindow::distance(int a_x, int a_y, int b_x, int b_y)
@@ -207,6 +246,15 @@ void MainWindow::setStrEnd()
                 .last()->setChecked(true);
         numSensor++;
     }
+}
+
+void MainWindow::mySwitch(int& res, int tar,int** nodes)
+{
+    int sw[2];
+    sw[0]=nodes[tar][0];sw[1]=nodes[tar][1];
+    nodes[tar][0]=nodes[res][0];nodes[tar][1]=nodes[res][1];
+    nodes[res][0]=sw[0];nodes[res][1]=sw[1];
+    res = tar;
 }
 
 void MainWindow::on_btnStr_clicked()

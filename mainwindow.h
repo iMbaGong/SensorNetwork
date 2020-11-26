@@ -35,17 +35,20 @@ private slots:
 
     void on_endCol_currentIndexChanged(int index);
 
+    void on_btnStr_clicked();
+
 private:
     Ui::MainWindow *ui;
     bool** graph;
     int numSensor;
     int dis;
     int speed;
-    int strRol;
+    int strRow;
     int strCol;
     int endRow;
     int endCol;
     void calculate();
-    void distance(int a_x,int a_y,int b_x,int b_y);
+    int distance(int a_x,int a_y,int b_x,int b_y);
+    void setStrEnd();
 };
 #endif // MAINWINDOW_H

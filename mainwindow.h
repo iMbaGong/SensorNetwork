@@ -47,7 +47,7 @@ private:
     int strCol;
     int endRow;
     int endCol;
-
+    bool isFirst;
     void calculate();
     int distance(int a_x,int a_y,int b_x,int b_y);
     void setStrEnd();

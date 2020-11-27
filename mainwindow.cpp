@@ -2,6 +2,7 @@
 #include "ui_mainwindow.h"
 #include <sstream>
 #include "QMessageBox"
+#include <time.h>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
@@ -16,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
     }
     numSensor = strRow = strCol = endRow = endCol =0;
     dis = speed = 100;
-
+    isFirst=true;
     QObject* object;
     QString name;
     foreach(object,ui->sensorNet->children()){
@@ -66,6 +67,8 @@ void MainWindow::on_btnClr_clicked()
            dynamic_cast<QAbstractButton*>(object)->setChecked(false);
         }
     }
+    isFirst=true;
+    ui->textBrowser->clear();
 }
 
 void MainWindow::on_inputDis_valueChanged(int arg1)
@@ -100,6 +103,11 @@ void MainWindow::on_endCol_currentIndexChanged(int index)
 
 void MainWindow::calculate()
 {
+    if(isFirst){
+        isFirst=false;
+    }
+    else
+        ui->textBrowser->insertPlainText(QString::fromStdString("/***************HISTORY***************/\n\n"));
     if(!graph[strRow][strCol]||!graph[endRow][endCol]){
         QMessageBox msg(this);
         msg.setWindowTitle("Warning");
@@ -114,6 +122,14 @@ void MainWindow::calculate()
             return;
     }
 
+    double time,start;
+    std::string sout;
+    start = clock();
+    QString output ;
+    time = (clock()-start)/CLOCKS_PER_SEC;
+    output = QString::number(time,'f',6);
+    output+="：正在初始化数据...\n";
+    ui->textBrowser->insertPlainText(output);
     int N=numSensor,M;
     if(strRow==endRow&&strCol==endCol){
         M=1<<(N-1);
@@ -155,7 +171,6 @@ void MainWindow::calculate()
     }
 
 
-
     //计算边的权值
     int D[N][N];
     for(int i=0;i<N;i++){
@@ -181,7 +196,10 @@ void MainWindow::calculate()
         dp[i][0]=D[i][endIndex];
         path[i][0]->push_back(i);
     }
-
+    time = (clock()-start)/CLOCKS_PER_SEC;
+    output = QString::number(time,'f',6);
+    output+="：开始计算...\n";
+    ui->textBrowser->insertPlainText(output);
 
 
     //开始计算
@@ -202,12 +220,25 @@ void MainWindow::calculate()
             }
         }
     }
-    while(path[0][M-1]->size()){
-        qDebug("(%d,%d)->",nodes[path[0][M-1]->back()][0],nodes[path[0][M-1]->back()][1]);
-        path[0][M-1]->pop_back();
-    }
-    qDebug("(%d,%d)",nodes[endIndex][0],nodes[endIndex][1]);
+    time = (clock()-start)/CLOCKS_PER_SEC;
+    output = QString::number(time,'f',6);
+    output+="：计算完毕...\n结果如下：\n";
+    ui->textBrowser->insertPlainText(output);
+    //输出结果
 
+    while(path[0][M-1]->size()){
+        char x;
+        x = nodes[path[0][M-1]->back()][0]+65;
+        output = "("+QString(x)+","+QString::number(nodes[path[0][M-1]->back()][1]+1)+")->";
+        path[0][M-1]->pop_back();
+        ui->textBrowser->insertPlainText(output);
+    }
+
+    char x;
+    x = nodes[endIndex][0]+65;
+    output = "("+QString(x)+","+QString::number(nodes[endIndex][1]+1)+")\n";
+    ui->textBrowser->insertPlainText(output);
+    ui->textBrowser->moveCursor(QTextCursor::End);
     delete[] nodes;
 }
 

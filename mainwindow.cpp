@@ -3,10 +3,12 @@
 #include <sstream>
 #include "QMessageBox"
 #include <time.h>
+#include"antcolonysystem.h"
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
 {
+
     ui->setupUi(this);
     graph = new bool*[8];
     for(int i=0;i<8;i++){
@@ -101,26 +103,9 @@ void MainWindow::on_endCol_currentIndexChanged(int index)
     endCol = index;
 }
 
-void MainWindow::calculate()
+void MainWindow::DP()
 {
-    if(isFirst){
-        isFirst=false;
-    }
-    else
-        ui->textBrowser->insertPlainText(QString::fromStdString("/***************HISTORY***************/\n\n"));
-    if(!graph[strRow][strCol]||!graph[endRow][endCol]){
-        QMessageBox msg(this);
-        msg.setWindowTitle("Warning");
-        msg.setText("设置的起点或终点没有被选中，若继续将为您自动选中，是否继续？");
-        msg.setIcon(QMessageBox::Information);
-        msg.setStandardButtons(QMessageBox::Ok | QMessageBox:: Cancel);
-        if(msg.exec() == QMessageBox::Ok)
-        {
-           setStrEnd();
-        }
-        else
-            return;
-    }
+
 
     double time,start;
     std::string sout;
@@ -130,6 +115,7 @@ void MainWindow::calculate()
     output = QString::number(time,'f',6);
     output+="：正在初始化数据...\n";
     ui->textBrowser->insertPlainText(output);
+
     int N=numSensor,M;
     if(strRow==endRow&&strCol==endCol){
         M=1<<(N-1);
@@ -247,6 +233,8 @@ int MainWindow::distance(int a_x, int a_y, int b_x, int b_y)
     return abs(a_x-b_x)>abs(a_y-b_y)?abs(a_x-b_x):abs(a_y-b_y);
 }
 
+
+
 void MainWindow::setStrEnd()
 {
     std::stringstream out;
@@ -288,7 +276,35 @@ void MainWindow::mySwitch(int& res, int tar,int** nodes)
     res = tar;
 }
 
+void MainWindow::setTextBrowser(QString input)
+{
+    ui->textBrowser->insertPlainText(input);
+}
+
+
+
+
 void MainWindow::on_btnStr_clicked()
 {
-    calculate();
+    if(isFirst){
+        isFirst=false;
+    }
+    else
+        ui->textBrowser->insertPlainText(QString::fromStdString("\n/***************HISTORY***************/\n\n"));
+    if(!graph[strRow][strCol]||!graph[endRow][endCol]){
+        QMessageBox msg(this);
+        msg.setWindowTitle("Warning");
+        msg.setText("设置的起点或终点没有被选中，若继续将为您自动选中，是否继续？");
+        msg.setIcon(QMessageBox::Information);
+        msg.setStandardButtons(QMessageBox::Ok | QMessageBox:: Cancel);
+        if(msg.exec() == QMessageBox::Ok)
+        {
+           setStrEnd();
+        }
+        else
+            return;
+    }
+    //DP();
+    AntColonySystem* acs = new AntColonySystem(this);
+    acs->ACO();
 }

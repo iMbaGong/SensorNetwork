@@ -11,11 +11,12 @@ QT_END_NAMESPACE
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
+friend class AntColonySystem;
+friend class ACSAnt;
 public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+    static int distance(int a_x,int a_y,int b_x,int b_y);
 
 private slots:
     void sensorClicked(bool checked);
@@ -48,9 +49,11 @@ private:
     int endRow;
     int endCol;
     bool isFirst;
-    void calculate();
-    int distance(int a_x,int a_y,int b_x,int b_y);
+    void DP();
+
     void setStrEnd();
     void mySwitch(int& res,int tar,int** nodes);
+
+    void setTextBrowser(QString input);
 };
 #endif // MAINWINDOW_H

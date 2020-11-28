@@ -48,7 +48,9 @@ private:
     int strCol;
     int endRow;
     int endCol;
+    int strIndex,endIndex;
     bool isFirst;
+
     void DP();
 
     void setStrEnd();

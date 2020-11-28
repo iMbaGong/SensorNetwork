@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
             graph[i][j] = false;
         }
     }
-    numSensor = strRow = strCol = endRow = endCol =0;
+    numSensor = strRow = strCol = endRow = endCol=strIndex=endIndex=0;
     dis = speed = 100;
     isFirst=true;
     QObject* object;
@@ -128,7 +128,6 @@ void MainWindow::DP()
         nodes[i] = new int[2];
     }
     int num=0;
-    int strIndex,endIndex;
     //将点放进数组以便建立图
     for(int i=0;i<8;i++){
         for(int j=0;j<12;j++){

@@ -21,7 +21,7 @@ public:
     double Lnn;
     void ACO();
     int ChooseNextNode(int currentNode, int visitedNode[]);
-    double CalAdjacentDistance(int node);
+    double CalAdjacentDistance();
     double calculateSumOfDistance(int** tour);
 private:
     double** info;//节点之间的信息素强度

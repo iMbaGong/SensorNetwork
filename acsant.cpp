@@ -1,10 +1,10 @@
 #include "acsant.h"
 #include <random>
-ACSAnt::ACSAnt(AntColonySystem* acs, int start)
+ACSAnt::ACSAnt(AntColonySystem* acs, int start,int end)
 {
     antColony = acs;
-    startCity = start;
-
+    startPoint = start;
+    endPoint = end;
     allowed = new int[antColony->N];
     tour = new int*[antColony->N];
     for(int i=0;i<antColony->N;i++){
@@ -13,39 +13,47 @@ ACSAnt::ACSAnt(AntColonySystem* acs, int start)
 
 }
 
+ACSAnt::~ACSAnt()
+{
+    delete [] allowed;
+    for(int i=0;i<antColony->N;i++){
+        delete[] tour[i];
+    }
+    delete[] tour;
+}
+
 int **ACSAnt::Search()
 {
-    cururentCity = startCity;
-        int toCity;
-        currentTourIndex = 0;
-        for (int i = 0; i <antColony->N; i++)
+    cururentPoint = startPoint;
+    int toCity;
+    currentTourIndex = 0;
+    for (int i = 0; i <antColony->N; i++)
+    {
+        allowed[i] = 1;
+    }
+    allowed[startPoint] = 0;
+    allowed[endPoint] = 0;
+    int count = 0;
+    do
+    {
+        count++;
+        toCity = Choose();
+        if (toCity >= 0)
         {
-            allowed[i] = 1;
+            MoveToNextCity(toCity);
+            antColony->UpdateLocalPathRule(cururentPoint, toCity);
+            cururentPoint = toCity;
         }
-        allowed[cururentCity] = 0;
-        int endCity;
-        int count = 0;
-        do
-        {
-            count++;
-            endCity = cururentCity;
-            toCity = Choose();
-            if (toCity >= 0)
-            {
-                MoveToNextCity(toCity);
-                antColony->UpdateLocalPathRule(endCity, toCity);
-                cururentCity = toCity;
-            }
-        } while (toCity >= 0);
-        MoveToNextCity(startCity);
-        antColony->UpdateLocalPathRule(endCity, startCity);
+    } while (toCity >= 0);
+    MoveToNextCity(endPoint);
+    antColony->UpdateLocalPathRule(cururentPoint, endPoint);
 
-        return tour;
+    return tour;
 }
 
 int ACSAnt::Choose()
 {
-    int nextCity = -1;
+    int nextPoint = -1;
         double q = rand() / (double)RAND_MAX;
         //如果 q <= q0,按先验知识，否则则按概率转移，
         if (q <= antColony->q0)
@@ -56,10 +64,10 @@ int ACSAnt::Choose()
                 //去掉禁忌表中已走过的节点,从剩下节点中选择最大概率的可行节点
                 if (1 == allowed[i])
                 {
-                    double prob = antColony->Transition(cururentCity, i);
+                    double prob = antColony->Transition(cururentPoint, i);
                     if (prob  > probability)
                     {
-                        nextCity = i;
+                        nextPoint = i;
                         probability = prob;
                     }
                 }
@@ -76,30 +84,30 @@ int ACSAnt::Choose()
             {
                 if (1 == allowed[i])
                 {
-                    sum += antColony->Transition(cururentCity, i);
+                    sum += antColony->Transition(cururentPoint, i);
                 }
             }
             for (int j = 0; j <antColony->N; j++)
             {
                 if (1 == allowed[j] && sum > 0)
                 {
-                    probability += antColony->Transition(cururentCity, j) / sum;
+                    probability += antColony->Transition(cururentPoint, j) / sum;
                     if (probability >= p || (p > 0.9999 && probability > 0.9999))
                     {
-                        nextCity = j;
+                        nextPoint = j;
                         break;
                     }
                 }
             }
         }
-        return nextCity;
+        return nextPoint;
 }
 
-void ACSAnt::MoveToNextCity(int nextCity)
+void ACSAnt::MoveToNextCity(int nextPoint)
 {
-    allowed[nextCity] = 0;
-    tour[currentTourIndex][0] = cururentCity;
-    tour[currentTourIndex][1] = nextCity;
+    allowed[nextPoint] = 0;
+    tour[currentTourIndex][0] = cururentPoint;
+    tour[currentTourIndex][1] = nextPoint;
     currentTourIndex++;
-    cururentCity = nextCity;
+    cururentPoint = nextPoint;
 }

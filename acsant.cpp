@@ -10,7 +10,6 @@ ACSAnt::ACSAnt(AntColonySystem* acs, int start,int end)
     for(int i=0;i<antColony->N;i++){
         tour[i] = new int[2];
     }
-
 }
 
 ACSAnt::~ACSAnt()
@@ -41,13 +40,10 @@ int **ACSAnt::Search()
         if (toCity >= 0)
         {
             MoveToNextCity(toCity);
-            antColony->UpdateLocalPathRule(cururentPoint, toCity);
             cururentPoint = toCity;
         }
     } while (toCity >= 0);
     MoveToNextCity(endPoint);
-    antColony->UpdateLocalPathRule(cururentPoint, endPoint);
-
     return tour;
 }
 

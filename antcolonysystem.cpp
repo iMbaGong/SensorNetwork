@@ -6,8 +6,8 @@
 #include<sstream>
 AntColonySystem::AntColonySystem(MainWindow* window)
 {
-  alpha = 2,beta = 3, rou = 0.1, alpha1 = 0.1,  q0 = 0.01;
-  NcMax = 500;
+  alpha = 1,beta = 4, rou = 0.1, q0 = 0.01;
+  localMax = 5000,globalMax = 10;
   M = N = window->numSensor;
 
   allDistance =new double*[N];
@@ -45,6 +45,7 @@ double AntColonySystem::Transition(int i, int j)
 {
     if (i != j)
         {
+
             return (pow(info[i][j], alpha) * pow(visible[i][j], beta));
         }
         else
@@ -53,11 +54,6 @@ double AntColonySystem::Transition(int i, int j)
     }
 }
 
-void AntColonySystem::UpdateLocalPathRule(int i, int j)
-{
-    info[i][j] = (1.0 - alpha1) * info[i][j] + alpha1 * (1.0 / (N*Lnn));
-    info[j][i] = info[i][j];
-}
 
 void AntColonySystem::InitParameter(double value)
 {
@@ -189,52 +185,69 @@ void AntColonySystem::ACO()
         }
     }
 
-
-
-
-    ACSAnt* ant = new ACSAnt(this,mainWindow->strIndex,mainWindow->endIndex);
-
-
-    //随机选择一个节点计算由最近邻方法得到的一个长度
-
-    Lnn = CalAdjacentDistance();
-
-    //各条路径上初始化的信息素强度
-    double initInfo = 1 / ( N*Lnn);
-    this->InitParameter(initInfo);
-
-    //最优路径
+    //全局最优路径
     int globalTour[N][2];
-    //最优长度
+    //全局最优长度
     double globalBestLength = 0.0;
 
     time = (clock()-start)/CLOCKS_PER_SEC;
     output = QString::number(time,'f',6);
     output+="：正在计算...\n";
     mainWindow->setTextBrowser(output);
-    for (int i = 0; i < NcMax; i++)
-    {
+    for(int i=0;i<globalMax;i++){
+
+        ACSAnt* ant = new ACSAnt(this,mainWindow->strIndex,mainWindow->endIndex);
+        //随机选择一个节点计算由最近邻方法得到的一个长度
+        Lnn = CalAdjacentDistance();
+        //各条路径上初始化的信息素强度
+        double initInfo = 1 / ( N*Lnn);
+        this->InitParameter(initInfo);
+
+        //最优路径
+        int localTour[N][2];
+        //最优长度
+        double localBestLength = 0.0;
+
+        for (int j = 0; j < localMax; j++)
+        {
+
+            int** tourPath = ant->Search();
+            double tourLength = calculateSumOfDistance(tourPath);
 
 
-        int** tourPath = ant->Search();
-        double tourLength = calculateSumOfDistance(tourPath);
+            //更新局部最优
+            if (tourLength < localBestLength || abs(localBestLength - 0.0) < 0.000001)
+            {
+                for (int m = 0; m< N; m++)
+                {
+                    localTour[m][0] = tourPath[m][0];
+                    localTour[m][1] = tourPath[m][1];
+                }
+                localBestLength = tourLength;
+            }
+            this->UpdateGlobalPathRule(*localTour, localBestLength);
+        }
 
-
-        //比较，并记录路径和长度
-        if (tourLength < globalBestLength || abs(globalBestLength - 0.0) < 0.000001)
+        //更新全局最优
+        if (localBestLength < globalBestLength || abs(globalBestLength - 0.0) < 0.000001)
         {
             for (int m = 0; m< N; m++)
             {
-                globalTour[m][0] = tourPath[m][0];
-                globalTour[m][1] = tourPath[m][1];
+                globalTour[m][0] = localTour[m][0];
+                globalTour[m][1] = localTour[m][1];
             }
-            globalBestLength = tourLength;
+            globalBestLength = localBestLength;
         }
-        this->UpdateGlobalPathRule(*globalTour, globalBestLength);
+        delete ant;
     }
+
     time = (clock()-start)/CLOCKS_PER_SEC;
     output = QString::number(time,'f',6);
     output+="：计算完毕...\n";
+    output+= "路径长度为："+QString::number(globalBestLength*mainWindow->dis);
+    output+= "\n遍历用时："+QString::number(globalBestLength*mainWindow->dis/mainWindow->speed,'f',2);
+    output+= "\n遍历路径如下：\n";
+    mainWindow->setTextBrowser(output);
     int n = N-1;
     if(mainWindow->strIndex==mainWindow->endIndex)
         n++;
@@ -249,5 +262,4 @@ void AntColonySystem::ACO()
     x = nodes[globalTour[n-1][1]][0]+65;
     output = "("+QString(x)+","+QString::number(nodes[globalTour[n-1][1]][1]+1)+")\n";
     mainWindow->setTextBrowser(output);
-    delete ant;
 }

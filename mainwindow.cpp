@@ -207,7 +207,10 @@ void MainWindow::DP()
     }
     time = (clock()-start)/CLOCKS_PER_SEC;
     output = QString::number(time,'f',6);
-    output+="：计算完毕...\n结果如下：\n";
+    output+="：计算完毕...\n";
+    output+= "路径长度为："+QString::number(dp[0][M-1]*dis);
+    output+= "\n遍历用时："+QString::number(dp[0][M-1]*dis/speed,'f',2);
+    output+= "\n遍历路径如下：\n";
     ui->textBrowser->insertPlainText(output);
     //输出结果
 
@@ -223,7 +226,7 @@ void MainWindow::DP()
     x = nodes[endIndex][0]+65;
     output = "("+QString(x)+","+QString::number(nodes[endIndex][1]+1)+")\n";
     ui->textBrowser->insertPlainText(output);
-    ui->textBrowser->moveCursor(QTextCursor::End);
+
     delete[] nodes;
 }
 
@@ -289,7 +292,7 @@ void MainWindow::on_btnStr_clicked()
         isFirst=false;
     }
     else
-        ui->textBrowser->insertPlainText(QString::fromStdString("\n/***************HISTORY***************/\n\n"));
+        ui->textBrowser->insertPlainText(QString::fromStdString("\n/***************************************************HISTORY***************************************************/\n\n"));
     if(!graph[strRow][strCol]||!graph[endRow][endCol]){
         QMessageBox msg(this);
         msg.setWindowTitle("Warning");
@@ -303,7 +306,12 @@ void MainWindow::on_btnStr_clicked()
         else
             return;
     }
-    //DP();
-    AntColonySystem* acs = new AntColonySystem(this);
-    acs->ACO();
+    if(numSensor<=16)
+        DP();
+    else{
+        AntColonySystem* acs = new AntColonySystem(this);
+        acs->ACO();
+        ui->textBrowser->moveCursor(QTextCursor::End);
+        delete acs;
+    }
 }

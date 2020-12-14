@@ -208,7 +208,21 @@ void MainWindow::DP()
     time = (clock()-start)/CLOCKS_PER_SEC;
     output = QString::number(time,'f',6);
     output+="：计算完毕...\n";
-    output+= "路径长度为："+QString::number(dp[0][M-1]*dis);
+    int intSize = sizeof(int);
+    int vectorSize = sizeof(std::vector<int>);
+    int pathSize = 0;
+    for(int i=0;i<N;i++){
+        for(int j=0;j<M;j++){
+            pathSize+= path[i][j]->size()*intSize + vectorSize;
+        }
+    }
+    double totalSize = (N*2+N*N+N*M)*intSize+ pathSize;
+    if (totalSize<10000)
+        output+= "消耗内存："+QString::number(totalSize,'f',2) +"B";
+    else if(totalSize<1000000)
+        output+= "消耗内存："+QString::number(totalSize/1000,'f',2) +"KB";
+    else
+        output+= "消耗内存："+QString::number(totalSize/1000000,'f',2) +"MB";
     output+= "\n遍历用时："+QString::number(dp[0][M-1]*dis/speed,'f',2);
     output+= "\n遍历路径如下：\n";
     ui->textBrowser->insertPlainText(output);
@@ -233,6 +247,13 @@ void MainWindow::DP()
 int MainWindow::distance(int a_x, int a_y, int b_x, int b_y)
 {
     return abs(a_x-b_x)>abs(a_y-b_y)?abs(a_x-b_x):abs(a_y-b_y);
+}
+
+double MainWindow::realDis(int a_x, int a_y, int b_x, int b_y)
+{
+    int sm = abs(a_x-b_x)<abs(a_y-b_y)?abs(a_x-b_x):abs(a_y-b_y);
+    int lg = abs(a_x-b_x)>abs(a_y-b_y)?abs(a_x-b_x):abs(a_y-b_y);
+    return sm*sqrt(2)+lg-sm;
 }
 
 
@@ -311,7 +332,7 @@ void MainWindow::on_btnStr_clicked()
     else{
         AntColonySystem* acs = new AntColonySystem(this);
         acs->ACO();
-        ui->textBrowser->moveCursor(QTextCursor::End);
         delete acs;
     }
+    ui->textBrowser->moveCursor(QTextCursor::End);
 }

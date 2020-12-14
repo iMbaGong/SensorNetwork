@@ -17,6 +17,7 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     static int distance(int a_x,int a_y,int b_x,int b_y);
+    static double realDis(int a_x,int a_y,int b_x,int b_y);
 
 private slots:
     void sensorClicked(bool checked);

@@ -7,7 +7,7 @@
 AntColonySystem::AntColonySystem(MainWindow* window)
 {
   alpha = 1,beta = 4, rou = 0.1, q0 = 0.01;
-  localMax = 5000,globalMax = 10;
+  localMax = 2000,globalMax = 10;
   M = N = window->numSensor;
 
   allDistance =new double*[N];
@@ -227,7 +227,6 @@ void AntColonySystem::ACO()
             }
             this->UpdateGlobalPathRule(*localTour, localBestLength);
         }
-
         //更新全局最优
         if (localBestLength < globalBestLength || abs(globalBestLength - 0.0) < 0.000001)
         {
@@ -244,7 +243,12 @@ void AntColonySystem::ACO()
     time = (clock()-start)/CLOCKS_PER_SEC;
     output = QString::number(time,'f',6);
     output+="：计算完毕...\n";
-    output+= "路径长度为："+QString::number(globalBestLength*mainWindow->dis);
+    int intSize = sizeof (int);
+    double totalSize = ((2*N)*4+N*N*4)*intSize;
+    if(totalSize<10000)
+        output+= "内存消耗："+QString::number(totalSize)+"B";
+    else
+        output+= "内存消耗："+QString::number(totalSize/1000,'f',2)+"KB";
     output+= "\n遍历用时："+QString::number(globalBestLength*mainWindow->dis/mainWindow->speed,'f',2);
     output+= "\n遍历路径如下：\n";
     mainWindow->setTextBrowser(output);
